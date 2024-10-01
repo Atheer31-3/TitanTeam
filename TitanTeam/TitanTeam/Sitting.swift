@@ -9,13 +9,25 @@ struct Sitting: View {
 //    let scrums: [Sitting]
     
     var body: some View {
-        VStack(alignment: .leading) {
-            Text("Settings")
-                .font(.largeTitle)
-                .bold()
-                .padding(.top, 200)
-                .padding(.leading)
-            
+        HStack {
+            Button(action: {
+                // Back action
+            }) {
+                Image(systemName: "chevron.left")
+                    .foregroundColor(.blue)
+                Text("schedule")
+                    .foregroundColor(.blue)
+            }
+            Spacer()
+        }
+        .padding()
+
+        Text("Sitting")
+            .font(.system(size: 40, weight: .bold))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal)
+        
+        
 //            Divider()
                        Button(action: {
                            withAnimation {
@@ -85,9 +97,8 @@ struct Sitting: View {
                 
                 Divider()
             }
-            .padding(.horizontal)
         }
-    }
+
 
 
 #Preview {
