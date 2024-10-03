@@ -15,6 +15,7 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             VStack {
+                // الرموز في الأعلى (لليوزر والتنبيهات)
                 HStack {
                     Image(systemName: "person.circle")
                         .font(.largeTitle)
@@ -31,20 +32,53 @@ struct ContentView: View {
                 .background(Color.white)
                 .zIndex(2)
 
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 20) {
-                        ForEach(0..<tasksList.count, id: \.self) { taskIndex in
-                            if !tasksList[taskIndex].allSatisfy({ $0.completed }) {
-                                TaskCardView(tasks: $tasksList[taskIndex], taskIndex: taskIndex, images: images, tasksList: $tasksList)
+                // التبويبات بين "Task" و "Schedule"
+                HStack(spacing: 0) {
+                    Button(action: {
+                        selectedTab = "Schedule"
+                    }) {
+                        Text("Schedule")
+                            .font(.system(size: 16))
+                            .foregroundColor(selectedTab == "Schedule" ? .black : .gray)
+                            .frame(width: 80, height: 30)
+                            .background(selectedTab == "Schedule" ? Color.gray.opacity(0.2) : Color.clear)
+                    }
+                    
+                    Button(action: {
+                        selectedTab = "Task"
+                    }) {
+                        Text("Task")
+                            .font(.system(size: 16))
+                            .foregroundColor(selectedTab == "Task" ? .black : .gray)
+                            .frame(width: 80, height: 30)
+                            .background(selectedTab == "Task" ? Color.gray.opacity(0.2) : Color.clear)
+                    }
+                }
+                .cornerRadius(5)
+                .padding(.top, 20)
+
+                // محتوى التبويبات
+                if selectedTab == "Task" {
+                    // عرض المهام
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 20) {
+                            ForEach(0..<tasksList.count, id: \.self) { taskIndex in
+                                if !tasksList[taskIndex].isEmpty {
+                                    TaskCardView(tasks: $tasksList[taskIndex], taskIndex: taskIndex, images: images, tasksList: $tasksList)
+                                }
                             }
                         }
+                        .padding()
                     }
-                    .padding()
+                } else {
+                    // محتوى "Schedule"
+                    ScheduleView()
                 }
 
                 Spacer()
             }
 
+            // زر إضافة مهمة جديدة
             VStack {
                 Spacer()
                 
@@ -65,14 +99,35 @@ struct ContentView: View {
     }
 }
 
+struct ScheduleView: View {
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text("Your Schedule")
+                .font(.largeTitle)
+                .padding()
+
+            Text("Schedule content goes here")
+                .padding()
+
+            DatePicker("Select a date", selection: .constant(Date()), displayedComponents: .date)
+                .padding()
+            
+            Spacer()
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(10)
+        .shadow(radius: 5)
+    }
+}
+
 struct TaskCardView: View {
     @Binding var tasks: [TaskModel]
     var taskIndex: Int
     let images: [String]
     @Binding var tasksList: [[TaskModel]]
-    
-    @State private var butterflyFlyAway = false
-    @State private var butterflyOffset: CGSize = .zero
+
+    @State private var cardOpacity: Double = 1.0
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -85,7 +140,7 @@ struct TaskCardView: View {
 
             VStack(spacing: 10) {
                 ForEach(0..<tasks.count, id: \.self) { subtaskIndex in
-                    TaskRow(task: $tasks[subtaskIndex], imageName: imageForTask(at: subtaskIndex, in: tasks.count), tasks: $tasks, tasksList: $tasksList, taskIndex: taskIndex, butterflyFlyAway: $butterflyFlyAway, butterflyOffset: $butterflyOffset)
+                    TaskRow(task: $tasks[subtaskIndex], imageName: imageForTask(at: subtaskIndex, in: tasks.count), tasks: $tasks, tasksList: $tasksList, taskIndex: taskIndex, cardOpacity: $cardOpacity)
                 }
             }
             .padding()
@@ -93,10 +148,11 @@ struct TaskCardView: View {
             .cornerRadius(10)
             .shadow(radius: 5)
         }
+        .opacity(cardOpacity)
         .frame(width: 300)
         .padding(.horizontal)
     }
-    
+
     func imageForTask(at index: Int, in totalTasks: Int) -> String {
         if totalTasks == 1 {
             return images.last!
@@ -117,31 +173,20 @@ struct TaskRow: View {
     @Binding var tasks: [TaskModel]
     @Binding var tasksList: [[TaskModel]]
     var taskIndex: Int
-    
-    @Binding var butterflyFlyAway: Bool
-    @Binding var butterflyOffset: CGSize
+
+    @Binding var cardOpacity: Double
 
     var body: some View {
         HStack {
             Button(action: {
-                if taskIndex == tasks.count - 1 && task.completed == false {
-                    withAnimation(.easeInOut(duration: 2)) {
-                        butterflyFlyAway = true
-                        butterflyOffset = CGSize(width: 100, height: -600) // تحريك الفراشة خارج الشاشة
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                        tasksList[taskIndex].removeAll()
-                    }
-                } else {
-                    task.completed.toggle()
-                }
+                task.completed.toggle()
+                checkIfAllTasksCompleted()
             }) {
                 Image(imageName)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 50, height: 50)
                     .opacity(task.completed ? 1.0 : 0.3)
-                    .offset(butterflyFlyAway ? butterflyOffset : .zero) // إزاحة الفراشة عند الطيران
             }
 
             TextField("Enter subtask", text: $task.text)
@@ -152,6 +197,23 @@ struct TaskRow: View {
             Spacer()
         }
         .padding(.vertical, 5)
+    }
+    
+    func checkIfAllTasksCompleted() {
+        // إذا تم الانتهاء من جميع الفراشات، تنتظر لمدة ثانيتين ثم يتم حذف المهمة بالكامل
+        if tasks.allSatisfy({ $0.completed }) {
+            withAnimation(.easeOut(duration: 1)) {
+                cardOpacity = 0.5 // تغيير شفافية البطاقة كإشارة للحذف
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                withAnimation(.easeOut(duration: 1)) {
+                    cardOpacity = 0 // إخفاء البطاقة
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    tasksList[taskIndex].removeAll() // حذف المهمة بالكامل
+                }
+            }
+        }
     }
 }
 
