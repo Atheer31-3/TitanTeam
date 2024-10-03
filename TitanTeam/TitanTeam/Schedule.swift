@@ -6,68 +6,68 @@ struct Schedule: View {
     @State private var currentDate = Date()
 
     var body: some View {
-        VStack {
-            HStack {
-                Image(systemName: "person.circle")
-                    .font(.largeTitle)
-                    .padding(.leading)
-                
-                Spacer()
-                
-                Image(systemName: "bell")
-                    .font(.largeTitle)
-                    .padding(.trailing)
-            }
-            .padding(.top, 40)
-            .padding(.horizontal)
-            .background(Color.white)
-            .zIndex(2)
-
-            DatePicker("Select date", selection: $currentDate, displayedComponents: .date)
-              
-
-            TabView {
-                // احصل على الشهر والسنة من التاريخ الحالي
-                let month = calendar.component(.month, from: currentDate)
-                let year = calendar.component(.year, from: currentDate)
-
-                // عرض الشهر الحالي فقط
-                VStack {
-                    ScrollView {
-                        VStack(spacing: 10) {
-                            let monthDate = calendar.date(from: DateComponents(year: year, month: month))!
-                            let daysInMonth = calendar.range(of: .day, in: .month, for: monthDate)!
-
-                            ForEach(daysInMonth, id: \.self) { day in
-                                dayView(for: day, in: monthDate)
-                            }
-                        }
-                        .padding()
-                    }
-                }
-                .padding()
-            }
-            .tabViewStyle(PageTabViewStyle())
-            .frame(height: 600)
-            
-            Text("Genius is one percent inspiration, 99% perspiration")
-            
+        NavigationView {  // إضافة NavigationView
             VStack {
-                Spacer()
-                
-                Button(action: {
-                    // Action to add new task
-                }) {
-                    Image(systemName: "plus.circle.fill")
-                        .resizable()
-                        .frame(width: 60, height: 60)
-                        .foregroundColor(.black)
-                        .padding(.bottom, 30)
+                HStack {
+                    NavigationLink(destination: Sitting()) {
+                        Image(systemName: "person.circle")
+                            .font(.largeTitle)
+                            .padding(.leading)
+                    }
+
+                    Spacer()
+                    
+                    Image(systemName: "bell")
+                        .font(.largeTitle)
+                        .padding(.trailing)
                 }
+                .padding(.top, 40)
+                .padding(.horizontal)
+                .background(Color.white)
                 .zIndex(2)
+
+                DatePicker("Select date", selection: $currentDate, displayedComponents: .date)
+
+                TabView {
+                    let month = calendar.component(.month, from: currentDate)
+                    let year = calendar.component(.year, from: currentDate)
+
+                    VStack {
+                        ScrollView {
+                            VStack(spacing: 10) {
+                                let monthDate = calendar.date(from: DateComponents(year: year, month: month))!
+                                let daysInMonth = calendar.range(of: .day, in: .month, for: monthDate)!
+
+                                ForEach(daysInMonth, id: \.self) { day in
+                                    dayView(for: day, in: monthDate)
+                                }
+                            }
+                            .padding()
+                        }
+                    }
+                    .padding()
+                }
+                .tabViewStyle(PageTabViewStyle())
+                .frame(height: 600)
+                
+                Text("Genius is one percent inspiration, 99% perspiration")
+                
+                VStack {
+                    Spacer()
+                    
+                    Button(action: {
+                        // Action to add new task
+                    }) {
+                        Image(systemName: "plus.circle.fill")
+                            .resizable()
+                            .frame(width: 60, height: 60)
+                            .foregroundColor(.black)
+                            .padding(.bottom, 30)
+                    }
+                    .zIndex(2)
+                }
             }
         }
-        
     }
 
     @ViewBuilder
@@ -81,10 +81,9 @@ struct Schedule: View {
                 .font(.headline)
                 .padding()
 
-            // مستطيل المهمة مع تأثير السكرول
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    ForEach(0..<3) { index in // افترض وجود 3 مهام على سبيل المثال
+                    ForEach(0..<3) { index in
                         taskView(task: "Task \(day) - \(index + 1)")
                             .padding(.horizontal, 5)
                     }
@@ -102,7 +101,7 @@ struct Schedule: View {
 
     func taskView(task: String) -> some View {
         Text(task)
-            .frame(width: 100, height: 30) // يمكنك تعديل العرض كما تحتاج
+            .frame(width: 100, height: 30)
             .background(Color.blue.opacity(0.3))
             .cornerRadius(5)
     }
