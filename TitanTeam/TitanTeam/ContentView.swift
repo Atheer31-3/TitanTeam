@@ -72,7 +72,7 @@ struct ContentView: View {
                     }
                 } else {
                     // محتوى "Schedule"
-                    ScheduleView()
+                    Schedule()
                 }
 
                 Spacer()

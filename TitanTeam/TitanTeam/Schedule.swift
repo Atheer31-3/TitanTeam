@@ -4,19 +4,21 @@ import CalendarKit
 struct Schedule: View {
     let calendar = Calendar.current
     @State private var currentDate = Date()
+    @State private var selectedTab: String = "Schedule" // حالة للتبويب المختار
 
     var body: some View {
-        NavigationView {  // إضافة NavigationView
+        NavigationView {
             VStack {
                 HStack {
                     NavigationLink(destination: Sitting()) {
                         Image(systemName: "person.circle")
-                            .font(.largeTitle).foregroundColor(.black)
+                            .font(.largeTitle)
+                            .foregroundColor(.black)
                             .padding(.leading)
                     }
 
                     Spacer()
-                    
+
                     Image(systemName: "bell")
                         .font(.largeTitle)
                         .padding(.trailing)
@@ -26,6 +28,29 @@ struct Schedule: View {
                 .background(Color.white)
                 .zIndex(2)
 
+                // HStack للتبويبات
+                HStack(spacing: 0) {
+                    NavigationLink(destination: Schedule()) {
+                        Text("Schedule")
+                            .font(.system(size: 16))
+                            .foregroundColor(selectedTab == "Schedule" ? .black : .gray)
+                            .frame(width: 80, height: 30)
+                            .background(selectedTab == "Schedule" ? Color.gray.opacity(0.2) : Color.clear)
+                    }
+
+                    NavigationLink(destination: ContentView()) {
+                        Text("Task")
+                            .font(.system(size: 16))
+                            .foregroundColor(selectedTab == "Task" ? .black : .gray)
+                            .frame(width: 80, height: 30)
+                            .background(selectedTab == "Task" ? Color.gray.opacity(0.2) : Color.clear)
+                    }
+                    
+                }
+                .cornerRadius(5)
+                .padding(.top, 20)
+
+                // DatePicker
                 DatePicker("Select date", selection: $currentDate, displayedComponents: .date)
 
                 TabView {
@@ -49,12 +74,12 @@ struct Schedule: View {
                 }
                 .tabViewStyle(PageTabViewStyle())
                 .frame(height: 600)
-                
+
                 Text("Genius is one percent inspiration, 99% perspiration")
-                
+
                 VStack {
                     Spacer()
-                    
+
                     Button(action: {
                         // Action to add new task
                     }) {
