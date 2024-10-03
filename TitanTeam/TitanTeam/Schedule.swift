@@ -11,7 +11,7 @@ struct Schedule: View {
                 HStack {
                     NavigationLink(destination: Sitting()) {
                         Image(systemName: "person.circle")
-                            .font(.largeTitle)
+                            .font(.largeTitle).foregroundColor(.black)
                             .padding(.leading)
                     }
 
