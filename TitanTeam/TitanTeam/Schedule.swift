@@ -1,7 +1,7 @@
 import SwiftUI
 import CalendarKit
 
-struct Deem: View {
+struct Schedule: View {
     let calendar = Calendar.current
     @State private var currentDate = Date()
 
@@ -109,5 +109,5 @@ struct Deem: View {
 }
 
 #Preview {
-    Deem()
+    Schedule()
 }
