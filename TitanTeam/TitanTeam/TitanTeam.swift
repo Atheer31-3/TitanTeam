@@ -11,7 +11,7 @@ import SwiftUI
 struct TitanTeam: App {
     var body: some Scene {
         WindowGroup {
-            Sitting()
+           // Add().modelContainer(for: [Task.self, Step.self])
         }
     }
 }
