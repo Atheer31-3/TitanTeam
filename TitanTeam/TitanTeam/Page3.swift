@@ -13,16 +13,14 @@ struct Page3: View {
     @State var selectedColor: Color = ._1
     @State var selectedInterest: String? = nil
     @State var customColor: Color = .white
-   // @State private var selectedInterest: String? = nil
-        @State private var randomQuote: String = ""
-        @State private var currentDate = Date()
+    @State private var currentDate = Date()
     let topics = ["SelfConfident", "Study", "Success", "Proverbs", "Funny", "Life"]
     var body: some View {
         NavigationStack{
             VStack {
                 HStack{
                     NavigationLink {
-                        Schedule()
+                        Page2()
                     } label: {
                         Image(systemName: "chevron.left")
                             .foregroundColor(.blue)
@@ -107,21 +105,20 @@ struct Page3: View {
                         }
                         
                     }
-                    
+                    .navigationTitle("")
                 }
-                NavigationLink(destination: Schedule()) {
-                        Text("Submit")
-                            .font(.subheadline)
-                            .foregroundColor(.white)
-                            .font(.title)
-                            .frame(maxWidth: .infinity)
-                            .padding(10)
-                            .background(Color.black)
-                            .cornerRadius(10)
-                    }
-                    .padding(.top, 30.0)
-                    .padding(.horizontal, 100.0)
-                Spacer()
+                NavigationLink(destination: Schedule(selectedInterest: $selectedInterest)) {
+                    Text("Submit")
+                        .font(.subheadline)
+                        .foregroundColor(.white)
+                        .font(.title)
+                        .frame(maxWidth: .infinity)
+                        .padding(10)
+                        .background(Color.black)
+                        .cornerRadius(10)
+                }
+                .padding(.top, 30.0)
+                .padding(.horizontal, 100.0)
             }
         }
     }

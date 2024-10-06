@@ -11,17 +11,33 @@ import CalendarKit
 struct Schedule: View {
     let calendar = Calendar.current
     @State private var currentDate = Date()
-   // @State private var selectedTab: String = "Schedule"
     @State private var selectedTopic = "SelfConfident"
     @State private var sentence = ""
     @State private var date = ""
     let interests = ["SelfConfident", "Study", "Success", "Proverbs", "Funny", "Life"]
-        @State private var selectedInterest: String? = nil
         @State private var randomQuote: String = ""
-       // @State private var currentDate = Date()
     let topics = ["SelfConfident", "Study", "Success", "Proverbs", "Funny", "Life"]
+    @Binding var selectedInterest: String? // Binding to accept value from Page3
+    func getRandomQuote(for interest: String) -> String {
+           switch interest {
+           case "SelfConfident":
+               return Intrist.SelfConfident.randomElement() ?? ""
+           case "Study":
+               return Intrist.Study.randomElement() ?? ""
+           case "Success":
+               return Intrist.Success.randomElement() ?? ""
+           case "Proverbs":
+               return Intrist.Proverbs.randomElement() ?? ""
+           case "Funny":
+               return Intrist.Funny.randomElement() ?? ""
+           case "Life":
+               return Intrist.Life.randomElement() ?? ""
+           default:
+               return ""
+           }
+       }
     var body: some View {
-        
+
         NavigationView {
             VStack {
                 // الشريط العلوي
@@ -36,7 +52,15 @@ struct Schedule: View {
                     Spacer()
                     
                 }
-                           DatePicker("", selection: $currentDate, displayedComponents: .date)
+                          //DatePicker("", selection: $currentDate, displayedComponents: .date)
+                DatePicker("", selection: $currentDate, displayedComponents: .date)
+                                .padding()
+                                .onChange(of: currentDate) { _ in
+                                    // عند تغيير التاريخ، نعيد تعيين العبارة العشوائية
+                                    if let selectedInterest = selectedInterest {
+                                        randomQuote = getRandomQuote(for: selectedInterest)
+                                    }
+                                }
                                
                 // TabView لعرض الأسابيع بشكل أفقي
                 TabView {
@@ -48,8 +72,25 @@ struct Schedule: View {
             
             // نص تحفيزي
                 
-                Text("Genius is one percent inspiration, 99% perspiration")
-                
+               // Text("Genius is one percent inspiration, 99% perspiration")
+                if !randomQuote.isEmpty {
+                                Text(randomQuote)
+                                    .padding()
+                                    .multilineTextAlignment(.center)
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(.black)
+                                    .background(Color.yellow.opacity(0.3))
+                                    .cornerRadius(10)
+                            }
+                            
+                            Spacer()
+                        
+                        .navigationTitle("")
+                        .onAppear {
+                            if let selectedInterest = selectedInterest {
+                                randomQuote = getRandomQuote(for: selectedInterest)
+                            }
+                        }
                 // زر إضافة مهمة
                 Button(action: {
                     // إضافة مهمة جديدة
@@ -126,5 +167,5 @@ struct Schedule: View {
 }
 
 #Preview {
-    Schedule()
+    Schedule(selectedInterest: .constant(nil))
 }
